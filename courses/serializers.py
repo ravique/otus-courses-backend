@@ -7,10 +7,16 @@ from .meta_serializers import LessonMetaSerializer, LecturerMetaSerializer, Cour
 from .models import Lecturer, Lesson, Course
 
 
+class AccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = 'id', 'username'
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = 'id', 'username', 'password', 'email',
+        fields = 'id', 'username', 'password'
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 

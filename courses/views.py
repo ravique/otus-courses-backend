@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import status
 
-from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer
+from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer, \
+    AccountSerializer
 
 from .models import Lecturer, Lesson, Course
 
@@ -48,7 +49,7 @@ class AccountView(APIView):
     permission_classes = IsAuthenticated,
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = AccountSerializer(request.user)
         return Response(serializer.data)
 
 
