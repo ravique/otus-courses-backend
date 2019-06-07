@@ -27,7 +27,7 @@ python manage.py migrate
 
 Passing unhached passwords in JSON? May be, not a very good idea, but we use CSRF protection and HTTPS.  
 
-###Registration: `/api/register/` – POST
+### Registration: `/api/register/` – POST
 **Example**
 ```json
 {
@@ -36,7 +36,7 @@ Passing unhached passwords in JSON? May be, not a very good idea, but we use CSR
 }
 ```
 
-###Login `/api/login/` – POST
+### Login `/api/login/` – POST
 **Example**
 ```json
 {
@@ -45,28 +45,28 @@ Passing unhached passwords in JSON? May be, not a very good idea, but we use CSR
 }
 ```
 
-###Logout /api/logout/ – POST
+### Logout `/api/logout/` – POST
 
 ## Entities
 
 All list-view endpoints return JSON with `links` (HATEOAS meta) and `objects` keys. 
 
-###Courses list /api/course/ – GET
+### Courses list `/api/course/` – GET
 Returns list of courses.
 
-###Course detail /api/<id>/ – GET
+### Course detail `/api/<id>/` – GET
 Returns detailed information about course.
 
-###Register on course /api/<id>/register/ – POST
+### Register on course `/api/<id>/register/` – POST
 Return 201 on success, 304 if you are already registered on this course.
 
-###Lecturers list /api/lecturer/ – GET
+### Lecturers list `/api/lecturer/` – GET
 Returns list of lecturer.
 
-###Lecturer detail /api/lecturer/<id>/ – GET
+### Lecturer detail `/api/lecturer/<id>/` – GET
 Returns detailed information about lecturer.
 
-###Lessons list /api/lesson/ – GET, params available!
+### Lessons list `/api/lesson/` – GET, params available!
 Returns list of lessons.
 Supports filtration by:
 - id
@@ -76,7 +76,7 @@ Supports filtration by:
 
 Multiple values of the same parameter supported (`/api/lesson/?course__name=Django&course__name=Python`)
 
-###Lesson detail /api/lesson/<id>/ – GET
+### Lesson detail /api/lesson/<id>/ – GET
 Returns detailed information about lesson.
 
 ## Authors
