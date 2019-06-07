@@ -54,6 +54,13 @@ class CourseShortSerializer(serializers.ModelSerializer):
         model = Course
         fields = 'name', 'links',
 
+class AccountSerializer(serializers.ModelSerializer):
+    courses = CourseShortSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = 'id', 'username', 'courses'
+
 
 class LessonShortSerializer(serializers.ModelSerializer):
     links = LessonMetaSerializer()
