@@ -45,6 +45,9 @@ Passing unhached passwords in JSON? May be, not a very good idea, but we use CSR
 }
 ```
 
+### Account `/api/account/` – GET
+Returns user account details.
+
 ### Logout `/api/logout/` – POST
 
 ## Entities
