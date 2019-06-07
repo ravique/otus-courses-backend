@@ -1,6 +1,7 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 
+
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +12,11 @@ from rest_framework import status
 from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer
 
 from .models import Lecturer, Lesson, Course
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return
 
 
 class RegisterView(APIView):
@@ -29,14 +35,16 @@ class LoginView(APIView):
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid()
-        user = serializer.validated_data['user']
-        login(request, user)
-        return Response(UserSerializer(user).data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            login(request, user)
+            return Response(UserSerializer(user).data)
+
+        return Response(serializer.errors)
 
 
 class AccountView(APIView):
-    authentication_classes = SessionAuthentication,
+    authentication_classes = CsrfExemptSessionAuthentication,
     permission_classes = IsAuthenticated,
 
     def get(self, request):
@@ -45,7 +53,7 @@ class AccountView(APIView):
 
 
 class LogoutView(APIView):
-    authentication_classes = SessionAuthentication,
+    authentication_classes = CsrfExemptSessionAuthentication,
     permission_classes = IsAuthenticated,
 
     def post(self, request):
@@ -54,7 +62,7 @@ class LogoutView(APIView):
 
 
 class RegisterOnCourseView(APIView):
-    authentication_classes = SessionAuthentication,
+    authentication_classes = CsrfExemptSessionAuthentication,
     permission_classes = IsAuthenticated,
 
     def post(self, request, pk):

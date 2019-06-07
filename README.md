@@ -3,6 +3,8 @@
 Simple website for Django REST API demonstration. Supports: user register, user login, registration on selected course.
 Authorization and login were made by JSON requests for using in rich frontends.
 
+CSRF-verification is turned off for testing in POSTMAN.
+
 [== DEMO ==](https://oc.space-coding.com/api)
 
 **<Attention!>** This module was made by mad-skilled student. Never use it in production. I said "NEVER". :) **</Attention!>**
@@ -23,9 +25,7 @@ python manage.py migrate
 
 ## Registration and login
 
-**<Attention!>** For all POST requests CSRF Token in Headers required!
-
-Passing unhached passwords in JSON? May be, not a very good idea, but we use CSRF protection and HTTPS.  
+Passing unhached passwords in JSON? May be, not a very good idea, but we use HTTPS.  
 
 ### Registration: `/api/register/` – POST
 **Example**
