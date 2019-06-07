@@ -1,7 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework.authentication import SessionAuthentication
 from django.contrib.auth import authenticate
-from rest_framework.reverse import reverse
 
 from rest_framework import serializers
 
@@ -12,16 +10,13 @@ from .models import Lecturer, Lesson, Course
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = 'id', 'username', 'password', 'email', 'first_name', 'last_name',
+        fields = 'id', 'username', 'password', 'email',
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
         )
 
         user.set_password(validated_data['password'])
@@ -46,12 +41,20 @@ class LoginSerializer(serializers.Serializer):
         return {'user': user}
 
 
-class LecturerSerializer(serializers.ModelSerializer):
-    links = LecturerMetaSerializer()
+class CourseShortSerializer(serializers.ModelSerializer):
+    links = CourseMetaSerializer()
 
     class Meta:
-        model = Lecturer
-        fields = 'links', 'id', 'first_name', 'last_name', 'bio'
+        model = Course
+        fields = 'name', 'links',
+
+
+class LessonShortSerializer(serializers.ModelSerializer):
+    links = LessonMetaSerializer()
+
+    class Meta:
+        model = Lesson
+        fields = 'name', 'links',
 
 
 class LecturerShortSerializer(serializers.ModelSerializer):
@@ -60,15 +63,16 @@ class LecturerShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lecturer
-        fields = 'name', 'links'
+        fields = 'name', 'links',
 
 
-class CourseShortSerializer(serializers.ModelSerializer):
-    links = CourseMetaSerializer()
+class LecturerSerializer(serializers.ModelSerializer):
+    links = LecturerMetaSerializer()
+    courses = CourseShortSerializer(many=True)
 
     class Meta:
-        model = Course
-        fields = 'name', 'links'
+        model = Lecturer
+        fields = 'links', 'id', 'first_name', 'last_name', 'photo', 'bio', 'courses'
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -89,4 +93,3 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = 'links', 'id', 'start', 'finish', 'name', 'description', 'price', 'lessons', 'lecturers',
-
