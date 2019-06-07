@@ -32,7 +32,7 @@ class Course(MetaMixin, models.Model):
     description = models.TextField(blank=True, verbose_name='Course description')
     price = models.PositiveIntegerField(blank=False, verbose_name='Course full price')
     lecturers = models.ManyToManyField(Lecturer, blank=False, related_name='courses', verbose_name='Course lecturers')
-    students = models.ManyToManyField(User, blank=True, null=True, related_name='courses',
+    students = models.ManyToManyField(User, blank=True, related_name='courses',
                                      verbose_name='Course students')
 
     def __str__(self):
@@ -67,3 +67,5 @@ class Lesson(MetaMixin, models.Model):
     @property
     def get_absolute_url(self):
         return reverse('courses:lesson-detail', kwargs={'pk': self.pk})
+
+# TODO: Pagination
