@@ -63,6 +63,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'URL_FIELD_NAME': 'href',
 }
 
 TEMPLATES = [
@@ -133,3 +134,5 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
+
+DOMAIN = 'https://oc.space-coding.com'

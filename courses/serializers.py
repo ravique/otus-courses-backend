@@ -7,12 +7,6 @@ from .meta_serializers import LessonMetaSerializer, LecturerMetaSerializer, Cour
 from .models import Lecturer, Lesson, Course
 
 
-class AccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = 'id', 'username'
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -53,6 +47,7 @@ class CourseShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = 'name', 'links',
+
 
 class AccountSerializer(serializers.ModelSerializer):
     courses = CourseShortSerializer(many=True)

@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.urls import reverse
 
 
 class MetaMixin:
@@ -22,10 +21,6 @@ class Lecturer(MetaMixin, models.Model):
     def full_name(self):
         return self.__str__
 
-    @property
-    def get_absolute_url(self):
-        return reverse('courses:lecturer-detail', kwargs={'pk': self.pk})
-
 
 class Course(MetaMixin, models.Model):
     name = models.CharField(max_length=255, blank=False, verbose_name='Course title')
@@ -33,14 +28,10 @@ class Course(MetaMixin, models.Model):
     price = models.PositiveIntegerField(blank=False, verbose_name='Course full price')
     lecturers = models.ManyToManyField(Lecturer, blank=False, related_name='courses', verbose_name='Course lecturers')
     students = models.ManyToManyField(User, blank=True, related_name='courses',
-                                     verbose_name='Course students')
+                                      verbose_name='Course students')
 
     def __str__(self):
         return self.name
-
-    @property
-    def get_absolute_url(self):
-        return reverse('courses:course-detail', kwargs={'pk': self.pk})
 
     @property
     def start(self):
@@ -63,9 +54,5 @@ class Lesson(MetaMixin, models.Model):
 
     def __str__(self):
         return self.name
-
-    @property
-    def get_absolute_url(self):
-        return reverse('courses:lesson-detail', kwargs={'pk': self.pk})
 
 # TODO: Pagination
