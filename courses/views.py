@@ -1,7 +1,6 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 
-
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -13,6 +12,7 @@ from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, Le
     AccountSerializer
 
 from .models import Lecturer, Lesson, Course
+from django.conf import settings
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -82,10 +82,12 @@ class RegisterOnCourseView(APIView):
 class AddLinksListView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         objects = self.get_queryset()
-        Serializer = self.get_serializer_class()
-        data = Serializer(objects, many=True)
-        return Response({'links': {'href': request.path},
+        serializer = self.get_serializer_class()
+        data = serializer(objects, many=True, context={'request': self.request})
+        return Response({'links': {'url': settings.DOMAIN + request.path},
                          'objects': data.data})
+
+    lookup_field = 'id'
 
 
 class LecturerListView(AddLinksListView):
