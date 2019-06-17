@@ -84,7 +84,7 @@ class AddLinksListView(generics.ListAPIView):
         objects = self.get_queryset()
         serializer = self.get_serializer_class()
         data = serializer(objects, many=True, context={'request': self.request})
-        return Response({'links': {'url': settings.DOMAIN + request.path},
+        return Response({'links': {'href': settings.DOMAIN + request.path},
                          'objects': data.data})
 
     lookup_field = 'id'

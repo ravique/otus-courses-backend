@@ -17,16 +17,21 @@ from django.contrib import admin
 from django.urls import path, include
 
 from django.conf import settings
+from graphene_django.views import GraphQLView
+from .schema import schema
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('', include('courses.urls'))
+    path('graphql/', GraphQLView.as_view(graphiql=True, schema=schema)),
+    path('', include('courses.urls')),
+
 ]
 
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
 
-    ] + urlpatterns
+    urlpatterns = [
+                      path('__debug__/', include(debug_toolbar.urls)),
+
+                  ] + urlpatterns
