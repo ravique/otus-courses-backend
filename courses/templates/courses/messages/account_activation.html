@@ -1,0 +1,6 @@
+{% autoescape off %}
+    Hi {{ user.username }},
+    Please click on the link to confirm your registration,
+
+    <a href="http://127.0.0.1:8000/api/account/verify/?uid={{ uid }}&token={{ token }}">Activate</a>
+{% endautoescape %}

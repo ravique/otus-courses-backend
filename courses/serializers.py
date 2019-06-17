@@ -4,25 +4,30 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 
 from .meta_serializers import LessonMetaSerializer, LecturerMetaSerializer, CourseMetaSerializer
-from .models import Lecturer, Lesson, Course
+from .models import Lecturer, Lesson, Course, UserProperty
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+
     class Meta:
         model = User
-        fields = 'id', 'username', 'password'
+        fields = 'id', 'first_name', 'last_name', 'username', 'password', 'email'
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 
     def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-        )
-
+        user = User.objects.create(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
 
         return user
+
+
+class UserPropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProperty
+        fields = 'verified',
 
 
 class LoginSerializer(serializers.Serializer):
@@ -54,7 +59,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = 'id', 'username', 'courses'
+        fields = 'first_name', 'last_name', 'email', 'courses'
 
 
 class LessonShortSerializer(serializers.ModelSerializer):

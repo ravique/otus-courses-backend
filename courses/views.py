@@ -1,5 +1,12 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
+from django.utils.encoding import force_bytes, force_text
+from django.core.mail import EmailMessage
 
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -9,10 +16,10 @@ from rest_framework import generics
 from rest_framework import status
 
 from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer, \
-    AccountSerializer
+    AccountSerializer, UserPropertySerializer
 
-from .models import Lecturer, Lesson, Course
-from django.conf import settings
+from .models import Lecturer, Lesson, Course, UserProperty
+from .tokens import account_activation_token
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -20,15 +27,37 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
+def send_verification_email(user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = account_activation_token.make_token(user)
+    mail_subject = 'Activate your account.'
+
+    message = render_to_string('courses/messages/account_activation.html', {
+        'user': user,
+        'uid': uid,
+        'token': token,
+    })
+
+    email = EmailMessage(
+        mail_subject, message, to=[user.email], from_email='info@sample.com'
+    )
+    email.content_subtype = 'html'
+    email.send()
+
+    return True
+
+
 class RegisterView(APIView):
     permission_classes = AllowAny,
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
+        user_serializer = UserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user = user_serializer.save()
+            UserProperty.objects.create(user=user)
+            if send_verification_email(user):
+                return Response(user_serializer.data)
+        return Response(user_serializer.errors)
 
 
 class LoginView(APIView):
@@ -38,6 +67,9 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
+            if not user.user_property.verified:
+                return Response({'error': 'Login failed: Confirm Email first'})
+
             login(request, user)
             return Response(UserSerializer(user).data)
 
@@ -49,8 +81,38 @@ class AccountView(APIView):
     permission_classes = IsAuthenticated,
 
     def get(self, request):
-        serializer = AccountSerializer(request.user)
-        return Response(serializer.data)
+        user_serializer = AccountSerializer(request.user)
+        user_property_serializer = UserPropertySerializer(request.user.user_property)
+        user_data = user_serializer.data
+        user_data.update(user_property_serializer.data)
+
+        return Response(user_data)
+
+
+class AccountVerificationView(APIView):
+    permission_classes = AllowAny,
+
+    def get(self, request, *args, **kwargs):
+        uid = request.GET.get('uid', None)
+        token = request.GET.get('token', None)
+
+        if not uid or not token:
+            return Response({'error': 'No uid or token provided'})
+
+        try:
+            user_id = urlsafe_base64_decode(uid)
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, ObjectDoesNotExist):
+            user = None
+
+        if user and account_activation_token.check_token(user, token):
+            if user.user_property.verified:
+                return Response({'info': 'User is already verified'})
+            user.user_property.verified = True
+            user.save()
+            return Response({'ok': 'Your email was verified'})
+
+        return Response({'error': 'Invalid user or token'})
 
 
 class LogoutView(APIView):
@@ -84,7 +146,7 @@ class AddLinksListView(generics.ListAPIView):
         objects = self.get_queryset()
         serializer = self.get_serializer_class()
         data = serializer(objects, many=True, context={'request': self.request})
-        return Response({'links': {'url': settings.DOMAIN + request.path},
+        return Response({'links': {'href': str(get_current_site(request)) + request.path},
                          'objects': data.data})
 
     lookup_field = 'id'

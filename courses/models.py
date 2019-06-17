@@ -8,6 +8,11 @@ class MetaMixin:
         return self
 
 
+class UserProperty(MetaMixin, models.Model):
+    verified = models.BooleanField(default=False, verbose_name='Is verified')
+    user = models.OneToOneField(User, blank=False, on_delete=models.CASCADE, related_name='user_property')
+
+
 class Lecturer(MetaMixin, models.Model):
     first_name = models.CharField(max_length=255, blank=True, verbose_name='First name')
     last_name = models.CharField(max_length=255, blank=True, verbose_name='Last name')
