@@ -27,16 +27,19 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return
 
 
-def send_verification_email(user):
+def send_verification_email(request, user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = account_activation_token.make_token(user)
     mail_subject = 'Activate your account.'
 
     message = render_to_string('courses/messages/account_activation.html', {
+        'domain': str(get_current_site(request)),
         'user': user,
         'uid': uid,
         'token': token,
     })
+
+    print(message)
 
     email = EmailMessage(
         mail_subject, message, to=[user.email], from_email='info@sample.com'
@@ -55,7 +58,7 @@ class RegisterView(APIView):
         if user_serializer.is_valid():
             user = user_serializer.save()
             UserProperty.objects.create(user=user)
-            if send_verification_email(user):
+            if send_verification_email(request, user):
                 return Response(user_serializer.data)
         return Response(user_serializer.errors)
 

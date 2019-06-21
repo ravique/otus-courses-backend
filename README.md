@@ -14,6 +14,9 @@ git clone https://github.com/ravique/otus-courses-website.git
 cd otus-django-shop
 pip install -r requirements.txt
 ```
+
+then add EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER to `settings.py`
+
 To perform migrations:
 ```commandline
 python manage.py migrate
@@ -28,11 +31,17 @@ python manage.py migrate
 Passing unhached passwords in JSON? May be, not a very good idea, but we use CSRF protection and HTTPS.  
 
 ### Registration: `/api/register/` – POST
+Required fields: `username, password, email`  
+Optional fields: `first_name, last_name`
+
+User must me verified by email. After registration you need to visit your mailbox for account activation.
+
 **Example**
 ```json
 {
 "username": "sammy",
-"password": 1234
+"password": 1234,
+"email": "example@example.com"
 }
 ```
 
