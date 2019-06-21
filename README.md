@@ -11,7 +11,7 @@ Authorization and login were made by JSON requests for using in rich frontends.
 ## Install
 ```commandline
 git clone https://github.com/ravique/otus-courses-website.git
-cd otus-django-shop
+cd otus-courses-website
 pip install -r requirements.txt
 ```
 
