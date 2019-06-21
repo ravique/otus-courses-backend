@@ -81,7 +81,7 @@ class AccountView(APIView):
     permission_classes = IsAuthenticated,
 
     def get(self, request):
-        user_serializer = AccountSerializer(request.user)
+        user_serializer = AccountSerializer(request.user, context={'request': request})
         user_property_serializer = UserPropertySerializer(request.user.user_property)
         user_data = user_serializer.data
         user_data.update(user_property_serializer.data)
@@ -109,7 +109,7 @@ class AccountVerificationView(APIView):
             if user.user_property.verified:
                 return Response({'info': 'User is already verified'})
             user.user_property.verified = True
-            user.save()
+            user.user_property.save()
             return Response({'ok': 'Your email was verified'})
 
         return Response({'error': 'Invalid user or token'})

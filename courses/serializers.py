@@ -59,7 +59,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = 'first_name', 'last_name', 'email', 'courses'
+        fields = 'id', 'first_name', 'last_name', 'email', 'courses'
 
 
 class LessonShortSerializer(serializers.ModelSerializer):
