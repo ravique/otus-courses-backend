@@ -100,7 +100,7 @@ class AccountVerificationView(APIView):
         token = request.GET.get('token', None)
 
         if not uid or not token:
-            return Response({'error': 'No uid or token provided'})
+            return Response({'error': 'No uid or token provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user_id = urlsafe_base64_decode(uid)
@@ -110,12 +110,12 @@ class AccountVerificationView(APIView):
 
         if user and account_activation_token.check_token(user, token):
             if user.user_property.verified:
-                return Response({'info': 'User is already verified'})
+                return Response({'info': 'User is already verified'}, status=status.HTTP_304_NOT_MODIFIED)
             user.user_property.verified = True
             user.user_property.save()
             return Response({'ok': 'Your email was verified'})
 
-        return Response({'error': 'Invalid user or token'})
+        return Response({'error': 'Invalid user or token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
