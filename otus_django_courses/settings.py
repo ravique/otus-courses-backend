@@ -30,16 +30,23 @@ INTERNAL_IPS = ['127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    # Main
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Modules
     'debug_toolbar',
     'django_extensions',
     'rest_framework',
+    'django_rq',
+
+    # Apps
     'courses',
+
 ]
 
 MIDDLEWARE = [
@@ -95,6 +102,16 @@ DATABASES = {
     }
 }
 
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'some-password',
+        'DEFAULT_TIMEOUT': 360,
+    },
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -127,7 +144,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
+# https://docs.djangoproject.com/en/2.2/howto/static-files/keys
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATIC_URL = '/static/'
@@ -142,6 +159,4 @@ EMAIL_PORT = 25
 # EMAIL_HOST_PASSWORD =
 # EMAIL_HOST_USER =
 
-# from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
-
-
+from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER

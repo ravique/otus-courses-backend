@@ -1,12 +1,9 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from django.utils.encoding import force_bytes, force_text
-from django.core.mail import EmailMessage
 
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import status
 
+from courses.messages import send_verification_email
 from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer, \
     AccountSerializer, UserPropertySerializer
 
@@ -25,29 +23,6 @@ from .tokens import account_activation_token
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
-
-
-def send_verification_email(request, user):
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = account_activation_token.make_token(user)
-    mail_subject = 'Activate your account.'
-
-    message = render_to_string('courses/messages/account_activation.html', {
-        'domain': str(get_current_site(request)),
-        'user': user,
-        'uid': uid,
-        'token': token,
-    })
-
-    print(message)
-
-    email = EmailMessage(
-        mail_subject, message, to=[user.email], from_email='info@sample.com'
-    )
-    email.content_subtype = 'html'
-    email.send()
-
-    return True
 
 
 class RegisterView(APIView):
@@ -90,7 +65,7 @@ class AccountView(APIView):
         user_data.update(user_property_serializer.data)
 
         return Response(user_data)
-
+    
 
 class AccountVerificationView(APIView):
     permission_classes = AllowAny,
