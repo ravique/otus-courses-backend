@@ -107,7 +107,14 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,
-        'PASSWORD': 'some-password',
+        # 'PASSWORD': 0,
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'lesson_reminder': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        # 'PASSWORD': 0,
         'DEFAULT_TIMEOUT': 360,
     },
 }
@@ -159,4 +166,7 @@ EMAIL_PORT = 25
 # EMAIL_HOST_PASSWORD =
 # EMAIL_HOST_USER =
 
+RQ_SHOW_ADMIN_LINK = True
+
+# Setting not for github :)
 from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER

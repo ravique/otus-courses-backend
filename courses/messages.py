@@ -20,7 +20,7 @@ def send_verification_email(request, user):
     })
 
     email = EmailMessage(
-        mail_subject, message, to=[user.email], from_email='info@sample.com'
+        mail_subject, message, to=[user.email], from_email='example@example.com'
     )
 
     email.content_subtype = 'html'
@@ -29,15 +29,18 @@ def send_verification_email(request, user):
     return True
 
 
-def send_reminder_email(user, lesson):
+def send_reminder_email(kwargs):
+    lesson = kwargs.get('lesson')
+    user = kwargs.get('user')
+
     mail_subject = 'Reminder about {}'.format(lesson.name)
-    message = render_to_string('', {
+    message = render_to_string('courses/messages/lesson_reminder.html', {
         'lesson_name': lesson.name,
         'lesson_date': lesson.date
     })
 
     email = EmailMessage(
-        mail_subject, message, to=[user.email], from_email='info@sample.com'
+        mail_subject, message, to=[user.email], from_email='example@example.com'
     )
 
     email.content_subtype = 'html'

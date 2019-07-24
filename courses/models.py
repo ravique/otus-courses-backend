@@ -47,6 +47,7 @@ class Course(MetaMixin, models.Model):
         return self.lessons.all().order_by('date').last().date
 
 
+
 class Lesson(MetaMixin, models.Model):
     name = models.CharField(max_length=255, blank=False, verbose_name='Lesson title')
     description = models.TextField(blank=True, verbose_name='Lesson description')

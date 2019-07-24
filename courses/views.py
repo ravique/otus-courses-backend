@@ -13,6 +13,7 @@ from rest_framework import generics
 from rest_framework import status
 
 from courses.messages import send_verification_email
+from courses.schedulers import schedule_reminder_messages, clear_reminder_messages
 from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer, \
     AccountSerializer, UserPropertySerializer
 
@@ -110,13 +111,41 @@ class RegisterOnCourseView(APIView):
         course = get_object_or_404(Course, pk=pk)
         user = request.user
 
+        if not course:
+            message = {"Error": "Course not found"}
+            return Response(message, status=status.HTTP_404_NOT_FOUND)
+
         if user not in course.students.all():
             user.courses.add(course)
             message = {"Success": "User {} successfully registered on course {}".format(user, course)}
+
+            schedule_reminder_messages(user=user, course=course)
             return Response(message, status=status.HTTP_201_CREATED)
 
         message = {"Not modified": "User {} is already registered on course {}".format(user, course)}
-        return Response(message, status=status.HTTP_304_NOT_MODIFIED)
+        return Response(message, status=status.HTTP_200_OK)
+
+
+class UnRegisterOnCourseView(APIView):
+    authentication_classes = CsrfExemptSessionAuthentication,
+    permission_classes = IsAuthenticated,
+
+    def post(self, request, pk):
+        course = get_object_or_404(Course, pk=pk)
+        user = request.user
+
+        if not course:
+            message = {"Error": "Course not found"}
+            return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+        if user in course.students.all():
+            user.courses.remove(course)
+            clear_reminder_messages(user, course)
+            message = {"Success": "User {} successfully unregistered on course {}".format(user, course)}
+            return Response(message, status=status.HTTP_201_CREATED)
+
+        message = {"Not modified": "User {} was not registered on course {}".format(user, course)}
+        return Response(message, status=status.HTTP_200_OK)
 
 
 class AddLinksListView(generics.ListAPIView):

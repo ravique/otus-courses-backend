@@ -66,11 +66,14 @@ All list-view endpoints return JSON with `links` (HATEOAS meta) and `objects` ke
 ### Courses list `/api/course/` – GET
 Returns list of courses.
 
-### Course detail `/api/<id>/` – GET
+### Course detail `/api/course/<id>/` – GET
 Returns detailed information about course.
 
-### Register on course `/api/<id>/register/` – POST
-Return 201 on success, 304 if you are already registered on this course.
+### Register on course `/api/course/<id>/register/` – POST
+Return 201 on success, json with error on fail.
+
+### Register on course `/api/course/<id>/unregister/` – POST
+Return 201 on success, json with error on fail.
 
 ### Lecturers list `/api/lecturer/` – GET
 Returns list of lecturer.
