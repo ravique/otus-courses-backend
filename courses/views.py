@@ -47,12 +47,12 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             if not user.user_property.verified:
-                return Response({'error': 'Login failed: Confirm Email first'})
+                return Response({'error': 'Login failed: Confirm Email first'}, status=status.HTTP_401_UNAUTHORIZED)
 
             login(request, user)
-            return Response(UserSerializer(user).data)
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
-        return Response(serializer.errors)
+        return Response({'error': serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class AccountView(APIView):
