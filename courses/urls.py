@@ -10,13 +10,13 @@ urlpatterns = [
     path('api/account/', views.AccountView.as_view()),
     path('api/account/verify/', views.AccountVerificationView.as_view(), name='account-verification'),
 
-    path('api/lecturer/', views.LecturerListView.as_view()),
+    path('api/lecturer/', views.LecturerListView.as_view(), name='lecturer-list'),
     path('api/lecturer/<int:pk>/', views.LecturerDetailView.as_view(), name='lecturer-detail'),
 
-    path('api/lesson/', views.LessonListView.as_view()),
+    path('api/lesson/', views.LessonListView.as_view(), name='lesson-list'),
     path('api/lesson/<int:pk>/', views.LessonDetailView.as_view(), name='lesson-detail'),
 
-    path('api/course/', views.CourseListView.as_view()),
+    path('api/course/', views.CourseListView.as_view(), name='course-list'),
     path('api/course/<int:pk>/', views.CourseDetailView.as_view(), name='course-detail'),
 
     path('api/course/<int:pk>/register/', views.RegisterOnCourseView.as_view(), name='register-on-course'),

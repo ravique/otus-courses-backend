@@ -35,8 +35,8 @@ class RegisterView(APIView):
             user = user_serializer.save()
             UserProperty.objects.create(user=user)
             if send_verification_email(request, user):
-                return Response(user_serializer.data)
-        return Response(user_serializer.errors)
+                return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'Error': user_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -47,12 +47,12 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             if not user.user_property.verified:
-                return Response({'error': 'Login failed: Confirm Email first'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'Error': 'Login failed: Confirm Email first'}, status=status.HTTP_400_BAD_REQUEST)
 
             login(request, user)
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
-        return Response({'error': serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'Error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountView(APIView):
@@ -76,7 +76,7 @@ class AccountVerificationView(APIView):
         token = request.GET.get('token', None)
 
         if not uid or not token:
-            return Response({'error': 'No uid or token provided'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Error': 'No uid or token provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user_id = urlsafe_base64_decode(uid)
@@ -91,7 +91,7 @@ class AccountVerificationView(APIView):
             user.user_property.save()
             return Response({'ok': 'Your email was verified'})
 
-        return Response({'error': 'Invalid user or token'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Error': 'Invalid user or token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):

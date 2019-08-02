@@ -10,3 +10,4 @@ django-debug-toolbar==1.11
 rq==1.0
 django-rq==2.1.0
 rq-scheduler==0.9
+requests===2.22.0
