@@ -81,15 +81,15 @@ class AccountVerificationView(APIView):
         try:
             user_id = urlsafe_base64_decode(uid)
             user = User.objects.get(pk=user_id)
-        except (TypeError, ValueError, OverflowError, ObjectDoesNotExist):
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
 
         if user and account_activation_token.check_token(user, token):
             if user.user_property.verified:
-                return Response({'info': 'User is already verified'}, status=status.HTTP_304_NOT_MODIFIED)
+                return Response({'Info': 'User email was already verified'}, status=status.HTTP_304_NOT_MODIFIED)
             user.user_property.verified = True
             user.user_property.save()
-            return Response({'ok': 'Your email was verified'})
+            return Response({'Success': 'User email was verified'})
 
         return Response({'Error': 'Invalid user or token'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -112,18 +112,18 @@ class RegisterOnCourseView(APIView):
         user = request.user
 
         if not course:
-            message = {"Error": "Course not found"}
-            return Response(message, status=status.HTTP_404_NOT_FOUND)
+            error_message = {'Error': 'Course not found'}
+            return Response(error_message, status=status.HTTP_404_NOT_FOUND)
 
         if user not in course.students.all():
             user.courses.add(course)
-            message = {"Success": "User {} successfully registered on course {}".format(user, course)}
+            success_message = {'Success': 'User {} successfully registered on course {}'.format(user, course)}
 
             schedule_reminder_messages(user=user, course=course)
-            return Response(message, status=status.HTTP_201_CREATED)
+            return Response(success_message, status=status.HTTP_201_CREATED)
 
-        message = {"Not modified": "User {} is already registered on course {}".format(user, course)}
-        return Response(message, status=status.HTTP_200_OK)
+        info_message = {'Not modified': 'User {} is already registered on course {}'.format(user, course)}
+        return Response(info_message, status=status.HTTP_200_OK)
 
 
 class UnRegisterOnCourseView(APIView):
@@ -135,16 +135,16 @@ class UnRegisterOnCourseView(APIView):
         user = request.user
 
         if not course:
-            message = {"Error": "Course not found"}
+            message = {'Error': 'Course not found'}
             return Response(message, status=status.HTTP_404_NOT_FOUND)
 
         if user in course.students.all():
             user.courses.remove(course)
             clear_reminder_messages(user, course)
-            message = {"Success": "User {} successfully unregistered on course {}".format(user, course)}
+            message = {'Success': 'User {} successfully unregistered on course {}'.format(user, course)}
             return Response(message, status=status.HTTP_201_CREATED)
 
-        message = {"Not modified": "User {} was not registered on course {}".format(user, course)}
+        message = {'Not modified': 'User {} was not registered on course {}'.format(user, course)}
         return Response(message, status=status.HTTP_200_OK)
 
 

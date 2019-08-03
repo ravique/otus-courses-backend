@@ -1,18 +1,16 @@
 import json
-from datetime import datetime, timedelta
 
-import requests
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.contrib.sites.shortcuts import get_current_site
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.utils.timezone import now
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 
-from courses.models import Course, Lesson, Lecturer, UserProperty
+from courses.tests.factories import Factory
+from courses.models import Course, Lesson, Lecturer
 from courses.serializers import CourseSerializer, LessonSerializer, LecturerSerializer
 from courses.views import LessonListView
 
@@ -24,17 +22,8 @@ class CourseViewTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Course.objects.create(
-            name='TestCourse1',
-            description='D1',
-            price='100'
-        )
-
-        Course.objects.create(
-            name='TestCourse2',
-            description='D2',
-            price='200'
-        )
+        Factory.create_course(name='TestCourse1')
+        Factory.create_course(name='TestCourse2')
 
     def test_CourseListView(self):
         response_from_view = client.get(reverse('course-list')).content
@@ -79,36 +68,10 @@ class LessonViewTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = Course.objects.create(
-            name='TestCourse1',
-            description='D1',
-            price='100'
-        )
-
-        cls.lecturer = Lecturer.objects.create(
-            first_name='John',
-            last_name='Doe',
-            bio='Lorem Ipsum'
-        )
-
-        Lesson.objects.create(
-            name='TestLesson1',
-            description='D1',
-            date=now(),
-            homework='Do someting',
-            course=cls.course,
-            lecturer=cls.lecturer
-
-        )
-
-        Lesson.objects.create(
-            name='TestLesson2',
-            description='D2',
-            date=now() + timedelta(days=10),
-            homework='Do someting',
-            course=cls.course,
-            lecturer=cls.lecturer
-        )
+        cls.course = Factory.create_course(name='TestCourse1')
+        cls.lecturer = Factory.create_lecturer()
+        Factory.create_lesson(name='TestLesson1', course=cls.course, lecturer=cls.lecturer)
+        Factory.create_lesson(name='TestLesson2', course=cls.course, lecturer=cls.lecturer)
 
     def test_LessonDetailView(self):
         response_from_view = client.get(reverse('lesson-detail', kwargs={'pk': 1})).content
@@ -158,31 +121,13 @@ class LessonViewTestCase(TestCase):
         self.assertEqual(lesson_list_view.get_queryset().first(), test_lesson.first())
 
 
-
 class LecturerViewTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = Course.objects.create(
-            name='TestCourse1',
-            description='D1',
-            price='100'
-        )
-
-        cls.lecturer = Lecturer.objects.create(
-            first_name='John',
-            last_name='Doe',
-            bio='Lorem Ipsum'
-        )
-
-        Lesson.objects.create(
-            name='TestLesson1',
-            description='D2',
-            date=now() + timedelta(days=10),
-            homework='Do someting',
-            course=cls.course,
-            lecturer=cls.lecturer
-        )
+        cls.course = Factory.create_course()
+        cls.lecturer = Factory.create_lecturer()
+        Factory.create_lesson(course=cls.course, lecturer=cls.lecturer)
 
     def test_LecturerDetailView(self):
         response_from_view = client.get(reverse('lecturer-detail', kwargs={'pk': 1})).content
@@ -292,18 +237,7 @@ class LoginTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create(
-            username='Koala',
-            first_name='John',
-            last_name='Doe',
-            email='koala@example.com'
-        )
-        cls.user_property = UserProperty.objects.create(
-            user=cls.user,
-            verified=True
-        )
-        cls.user.set_password(32768)
-        cls.user.save()
+        Factory.create_verified_user()
 
     def test_login_success(self):
         request = {
@@ -370,5 +304,50 @@ class LoginTestCase(TestCase):
 
         self.assertEqual(400, response_from_url.status_code)
         self.assertTrue('Error' in response_json.keys())
+
+
+class RegisterOnCourseViewTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        user_password = 32768
+        cls.user = Factory.create_verified_user(password=user_password)
+        cls.course = Factory.create_course()
+        client.login(username=cls.user.username, password=32768)
+
+    def test_register_on_course_success(self):
+        client.login(username=self.__class__.user.username, password=32768) # Test wont pass without it. Don't know why
+        request_uri = '/api/course/{}/register/'.format(self.__class__.course.id)
+        response_from_url = client.post(request_uri)
+        response_json = json.loads(response_from_url.content)
+
+        self.assertTrue('Success' in response_json.keys())
+        self.assertEqual(201, response_from_url.status_code)
+
+    def test_register_on_course_error_registered_already(self):
+
+        self.__class__.course.students.add(self.__class__.user)
+        self.__class__.course.save()
+
+        request_uri = '/api/course/{}/register/'.format(self.__class__.course.id)
+        response_from_url = client.post(request_uri)
+        response_json = json.loads(response_from_url.content)
+
+        self.assertTrue('Not modified' in response_json.keys())
+        self.assertEqual(200, response_from_url.status_code)
+
+    def test_register_on_course_error_no_course(self):
+        request_uri = '/api/course/5/register/'
+        response_from_url = client.post(request_uri)
+        self.assertTrue(404, response_from_url.status_code)
+
+    def test_register_on_course_error_user_not_logged_in(self):
+        client.logout()
+
+        request_uri = '/api/course/{}/register/'.format(self.__class__.course.id)
+        response_from_url = client.post(request_uri)
+
+        self.assertEqual(403, response_from_url.status_code)
+
 
 
