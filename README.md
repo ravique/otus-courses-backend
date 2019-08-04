@@ -22,6 +22,11 @@ To perform migrations:
 python manage.py migrate
 ```
 
+## Tests
+
+`coverage run --source='.' --omit=*/venv/*,*/migrations/* manage.py test && coverage report`
+
+
 ## API Reference
 
 ## Registration and login
