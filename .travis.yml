@@ -13,7 +13,8 @@ install:
 services:
   - redis-server
 
-script: python manage.py test
+script:
+  - coverage run --source='.' --omit=*/migrations/* manage.py test
 
 after_success:
-  bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
