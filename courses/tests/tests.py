@@ -1,14 +1,20 @@
+import datetime
 import json
 
+import django_rq
+import pytz
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.contrib.sites.shortcuts import get_current_site
-from django.test import TestCase, Client
+from django.core import mail
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 
+from courses.messages import send_reminder_email, send_verification_email
+from courses.schedulers import schedule_reminder_messages, clear_reminder_messages
 from courses.tests.factories import Factory
 from courses.models import Course, Lesson, Lecturer
 from courses.serializers import CourseSerializer, LessonSerializer, LecturerSerializer
@@ -20,8 +26,7 @@ factory = APIRequestFactory()
 
 class CourseViewTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         Factory.create_course(name='TestCourse1')
         Factory.create_course(name='TestCourse2')
 
@@ -66,12 +71,11 @@ class CourseViewTestCase(TestCase):
 
 class LessonViewTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.course = Factory.create_course(name='TestCourse1')
-        cls.lecturer = Factory.create_lecturer()
-        Factory.create_lesson(name='TestLesson1', course=cls.course, lecturer=cls.lecturer)
-        Factory.create_lesson(name='TestLesson2', course=cls.course, lecturer=cls.lecturer)
+    def setUp(self):
+        self.course = Factory.create_course(name='TestCourse1')
+        self.lecturer = Factory.create_lecturer()
+        Factory.create_lesson(name='TestLesson1', course=self.course, lecturer=self.lecturer)
+        Factory.create_lesson(name='TestLesson2', course=self.course, lecturer=self.lecturer)
 
     def test_LessonDetailView(self):
         response_from_view = client.get(reverse('lesson-detail', kwargs={'pk': 1})).content
@@ -86,7 +90,8 @@ class LessonViewTestCase(TestCase):
         serializer = LessonSerializer(lesson, context=serializer_context)
         test_data = JSONRenderer().render(serializer.data)
 
-        self.assertEqual(test_data, response_from_url, response_from_view)
+        self.assertEqual(test_data, response_from_view)
+        self.assertEqual(test_data, response_from_url)
 
     def test_LessonListView(self):
         response_from_view = client.get(reverse('lesson-list')).content
@@ -123,11 +128,10 @@ class LessonViewTestCase(TestCase):
 
 class LecturerViewTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.course = Factory.create_course()
-        cls.lecturer = Factory.create_lecturer()
-        Factory.create_lesson(course=cls.course, lecturer=cls.lecturer)
+    def setUp(self):
+        self.course = Factory.create_course()
+        self.lecturer = Factory.create_lecturer()
+        Factory.create_lesson(course=self.course, lecturer=self.lecturer)
 
     def test_LecturerDetailView(self):
         response_from_view = client.get(reverse('lecturer-detail', kwargs={'pk': 1})).content
@@ -235,8 +239,7 @@ class RegisterTestCase(TestCase):
 
 class LoginTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         Factory.create_verified_user()
 
     def test_login_success(self):
@@ -308,16 +311,15 @@ class LoginTestCase(TestCase):
 
 class RegisterOnCourseViewTestCase(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         user_password = 32768
-        cls.user = Factory.create_verified_user(password=user_password)
-        cls.course = Factory.create_course()
-        client.login(username=cls.user.username, password=32768)
+        self.user = Factory.create_verified_user(password=user_password)
+        self.course = Factory.create_course()
+        client.login(username=self.user.username, password=32768)
 
     def test_register_on_course_success(self):
-        client.login(username=self.__class__.user.username, password=32768) # Test wont pass without it. Don't know why
-        request_uri = '/api/course/{}/register/'.format(self.__class__.course.id)
+        client.login(username=self.user.username, password=32768)  # Test wont pass without it. Don't know why
+        request_uri = '/api/course/{}/register/'.format(self.course.id)
         response_from_url = client.post(request_uri)
         response_json = json.loads(response_from_url.content)
 
@@ -325,11 +327,10 @@ class RegisterOnCourseViewTestCase(TestCase):
         self.assertEqual(201, response_from_url.status_code)
 
     def test_register_on_course_error_registered_already(self):
+        self.course.students.add(self.user)
+        self.course.save()
 
-        self.__class__.course.students.add(self.__class__.user)
-        self.__class__.course.save()
-
-        request_uri = '/api/course/{}/register/'.format(self.__class__.course.id)
+        request_uri = '/api/course/{}/register/'.format(self.course.id)
         response_from_url = client.post(request_uri)
         response_json = json.loads(response_from_url.content)
 
@@ -344,10 +345,81 @@ class RegisterOnCourseViewTestCase(TestCase):
     def test_register_on_course_error_user_not_logged_in(self):
         client.logout()
 
-        request_uri = '/api/course/{}/register/'.format(self.__class__.course.id)
+        request_uri = '/api/course/{}/register/'.format(self.course.id)
         response_from_url = client.post(request_uri)
 
         self.assertEqual(403, response_from_url.status_code)
 
 
+# TODO: по уму надо тестировать отдельно на соответствие данных, которые отдал сериалайзер ожидаемым и данные, которые отдал ендпоинт ожидаемым
 
+class SendEmailTestCase(TestCase):
+
+    def setUp(self):
+        user_password = 32768
+        self.user = Factory.create_verified_user(password=user_password)
+        self.course = Factory.create_course()
+        self.lesson = Factory.create_lesson(course=self.course, name='L1',
+                                            date=datetime.datetime(2018, 6, 11, 21, 30, tzinfo=pytz.UTC))
+        rf = RequestFactory()
+        self.request = rf.get('/')
+
+        client.login(username=self.user.username, password=32768)
+
+    def test_send_reminder_email(self):
+        kwargs = {
+            'user': self.user,
+            'lesson': self.lesson
+        }
+
+        email = send_reminder_email(kwargs)
+
+        self.assertIn('L1', email.body)
+        self.assertIn(self.user.username, email.body)
+        self.assertIn(self.user.email, email.to)
+        self.assertIn('L1', email.subject)
+        self.assertIn(email, mail.outbox)
+
+    def test_send_verification_email(self):
+        email = send_verification_email(self.request, self.user)
+
+        self.assertIn(self.user.email, email.to)
+        self.assertIn(self.user.username, email.body)
+        self.assertIn(email, mail.outbox)
+
+
+class LessonSchedulerTestCase(TestCase):
+
+    def setUp(self):
+        self.user = Factory.create_verified_user(password=32768)
+        self.course = Factory.create_course()
+        Factory.create_lesson(course=self.course, name='L1',
+                              date=datetime.datetime(2018, 6, 11, 21, 30, tzinfo=pytz.UTC))
+        Factory.create_lesson(course=self.course, name='L2',
+                              date=datetime.datetime(2018, 6, 18, 21, 30, tzinfo=pytz.UTC))
+        self.test_lesson_scheduler = django_rq.get_scheduler('lesson_reminder_test')
+
+    def tearDown(self):
+        for job in self.test_lesson_scheduler.get_jobs():
+            self.test_lesson_scheduler.cancel(job)
+
+    def test_schedule_reminder_messages(self):
+        schedule_reminder_messages(self.user, self.course, lesson_scheduler=self.test_lesson_scheduler)
+
+        scheduler_jobs_data = [json.loads(j.description) for j in self.test_lesson_scheduler.get_jobs()]
+        test_jobs_data = [{'user': self.user.id, 'lesson': lesson.id} for lesson in self.course.lessons.all()]
+
+        self.assertEqual(test_jobs_data, scheduler_jobs_data)
+
+    def test_schedule_reminder_messages_doubles(self):
+        schedule_reminder_messages(self.user, self.course, lesson_scheduler=self.test_lesson_scheduler)
+        schedule_reminder_messages(self.user, self.course, lesson_scheduler=self.test_lesson_scheduler)
+        schedule_reminder_messages(self.user, self.course, lesson_scheduler=self.test_lesson_scheduler)
+
+        self.assertEqual(2, len(list(self.test_lesson_scheduler.get_jobs())))
+
+    def test_clear_reminder_messages(self):
+        schedule_reminder_messages(self.user, self.course, lesson_scheduler=self.test_lesson_scheduler)
+        clear_reminder_messages(self.user, self.course, lesson_scheduler=self.test_lesson_scheduler)
+
+        self.assertEqual(0, len(list(self.test_lesson_scheduler.get_jobs())))

@@ -1,6 +1,6 @@
 {% autoescape off %}
     Hi {{ user.username }},
-    Please click on the link to confirm your registration,
+    Please, follow the link to confirm your registration:
 
-    <a href="http://{{ domain }}{% url 'account-verification' %}?uid={{ uid }}&token={{ token }}">Activate</a>
+    <a href="{{ activation_uri }}">Activate</a>
 {% endautoescape %}

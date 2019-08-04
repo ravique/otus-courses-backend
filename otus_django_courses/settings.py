@@ -117,6 +117,13 @@ RQ_QUEUES = {
         # 'PASSWORD': 0,
         'DEFAULT_TIMEOUT': 360,
     },
+    'lesson_reminder_test': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        # 'PASSWORD': 0,
+        'DEFAULT_TIMEOUT': 360,
+    },
 }
 
 # Password validation
