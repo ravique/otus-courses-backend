@@ -1,3 +1,5 @@
+[![Travis build result](https://travis-ci.com/ravique/otus-courses-website.svg?branch=master)](https://travis-ci.com/ravique/otus-courses-website/)
+
 # Otus Django Courses
 
 Simple website for Django REST API demonstration. Supports: user register, user login, registration on selected course.
