@@ -13,7 +13,7 @@ install:
 services:
   - redis-server
 
-script: python manage.py test --cov=codecov
+script: python manage.py test
 
 after_success:
   - codecov
