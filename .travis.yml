@@ -16,4 +16,4 @@ services:
 script: python manage.py test
 
 after_success:
-  - codecov
+  bash < (curl -s https://codecov.io/bash)
