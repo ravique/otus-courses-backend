@@ -176,4 +176,4 @@ EMAIL_PORT = 25
 RQ_SHOW_ADMIN_LINK = True
 
 # Setting not for github :)
-from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
+# from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
