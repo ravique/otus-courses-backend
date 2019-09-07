@@ -170,11 +170,11 @@ MEDIA_URL = '/media/'
 EMAIL_USE_TLS = True
 
 EMAIL_PORT = 25
-# EMAIL_HOST =
-# EMAIL_HOST_PASSWORD =
-# EMAIL_HOST_USER =
+EMAIL_HOST = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = ''
 
 RQ_SHOW_ADMIN_LINK = True
 
 # Setting not for github :)
-from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
+# from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
