@@ -210,7 +210,7 @@ class RegisterTestCase(TestCase):
         response_from_url = client.post('/api/register/', data=request_json, content_type='application/json')
 
         self.assertEqual(400, response_from_url.status_code)
-        self.assertTrue('Error' in json.loads(response_from_url.content).keys())
+        self.assertTrue('errors' in json.loads(response_from_url.content).keys())
 
     def test_register_view_post_no_password(self):
         request = {
@@ -222,7 +222,7 @@ class RegisterTestCase(TestCase):
         response_from_url = client.post('/api/register/', data=request_json, content_type='application/json')
 
         self.assertEqual(400, response_from_url.status_code)
-        self.assertTrue('Error' in json.loads(response_from_url.content).keys())
+        self.assertTrue('errors' in json.loads(response_from_url.content).keys())
 
     def test_register_view_post_no_username(self):
         request = {
@@ -234,7 +234,7 @@ class RegisterTestCase(TestCase):
         response_from_url = client.post('/api/register/', data=request_json, content_type='application/json')
 
         self.assertEqual(400, response_from_url.status_code)
-        self.assertTrue('Error' in json.loads(response_from_url.content).keys())
+        self.assertTrue('errors' in json.loads(response_from_url.content).keys())
 
 
 class LoginTestCase(TestCase):
@@ -281,7 +281,7 @@ class LoginTestCase(TestCase):
         response_json = json.loads(response_from_url.content)
 
         self.assertEqual(400, response_from_url.status_code)
-        self.assertTrue('Error' in response_json.keys())
+        self.assertTrue('errors' in response_json.keys())
 
     def test_login_no_password(self):
         request = {
@@ -293,7 +293,7 @@ class LoginTestCase(TestCase):
         response_json = json.loads(response_from_url.content)
 
         self.assertEqual(400, response_from_url.status_code)
-        self.assertTrue('Error' in response_json.keys())
+        self.assertTrue('errors' in response_json.keys())
 
     def test_login_wrong_password(self):
         request = {
@@ -306,7 +306,7 @@ class LoginTestCase(TestCase):
         response_json = json.loads(response_from_url.content)
 
         self.assertEqual(400, response_from_url.status_code)
-        self.assertTrue('Error' in response_json.keys())
+        self.assertTrue('errors' in response_json.keys())
 
 
 class RegisterOnCourseViewTestCase(TestCase):

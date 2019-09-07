@@ -5,7 +5,6 @@ from courses.models import UserProperty, Course, Lecturer, Lesson
 
 
 class Factory:
-
     @classmethod
     def create_verified_user(cls, username='Koala',
                              first_name='John',

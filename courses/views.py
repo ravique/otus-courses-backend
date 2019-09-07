@@ -2,7 +2,6 @@ from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
 from rest_framework.authentication import SessionAuthentication
@@ -34,9 +33,12 @@ class RegisterView(APIView):
         if user_serializer.is_valid():
             user = user_serializer.save()
             UserProperty.objects.create(user=user)
-            if send_verification_email(request, user):
-                return Response(user_serializer.data, status=status.HTTP_201_CREATED)
-        return Response({'Error': user_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                send_verification_email(request, user)
+            except Exception as e:
+                pass
+            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'errors': user_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -47,12 +49,12 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             if not user.user_property.verified:
-                return Response({'Error': 'Login failed: Confirm Email first'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'errors': {'non_field_errors': ['Login failed. Confirm email first']}}, status=status.HTTP_400_BAD_REQUEST)
 
             login(request, user)
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
-        return Response({'Error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountView(APIView):
@@ -76,7 +78,7 @@ class AccountVerificationView(APIView):
         token = request.GET.get('token', None)
 
         if not uid or not token:
-            return Response({'Error': 'No uid or token provided'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': ['No uid or token provided']}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user_id = urlsafe_base64_decode(uid)
@@ -91,7 +93,7 @@ class AccountVerificationView(APIView):
             user.user_property.save()
             return Response({'Success': 'User email was verified'})
 
-        return Response({'Error': 'Invalid user or token'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'errors': ['Invalid user or token']}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):
@@ -112,7 +114,7 @@ class RegisterOnCourseView(APIView):
         user = request.user
 
         if not course:
-            error_message = {'Error': 'Course not found'}
+            error_message = {'errors': ['Course not found']}
             return Response(error_message, status=status.HTTP_404_NOT_FOUND)
 
         if user not in course.students.all():
@@ -135,7 +137,7 @@ class UnRegisterOnCourseView(APIView):
         user = request.user
 
         if not course:
-            message = {'Error': 'Course not found'}
+            message = {'errors': ['Course not found']}
             return Response(message, status=status.HTTP_404_NOT_FOUND)
 
         if user in course.students.all():

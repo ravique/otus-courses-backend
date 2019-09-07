@@ -26,7 +26,9 @@ python manage.py migrate
 
 ## Tests
 
-`coverage run --source='.' --omit=*/venv/*,*/migrations/* manage.py test && coverage report`
+```commandline
+coverage run --source='.' --omit=*/venv/*,*/migrations/* manage.py test && coverage report
+```
 
 
 ## API Reference

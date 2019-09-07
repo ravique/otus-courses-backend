@@ -24,7 +24,7 @@ SECRET_KEY = '9lslw(yc=$ae7z^h^zt)w3$e80elt0d_^=v*i5ag177t06-h_4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0']
+ALLOWED_HOSTS = ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost']
 INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
@@ -144,6 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -176,4 +177,4 @@ EMAIL_PORT = 25
 RQ_SHOW_ADMIN_LINK = True
 
 # Setting not for github :)
-# from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
+from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
