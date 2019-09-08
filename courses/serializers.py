@@ -55,11 +55,30 @@ class CourseShortSerializer(serializers.ModelSerializer):
 
 
 class AccountSerializer(serializers.ModelSerializer):
-    courses = CourseShortSerializer(many=True)
+    courses = CourseShortSerializer(many=True, required=False)
 
     class Meta:
         model = User
-        fields = 'id', 'first_name', 'last_name', 'email', 'courses'
+        fields = 'username', 'id', 'first_name', 'last_name', 'email', 'courses'
+        read_only_fields = ('id', 'courses')
+
+        extra_kwargs = {
+            'username': {'validators': []},
+        }
+
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.save()
+        return instance
+
+    def validate_username(self, username):
+        users = User.objects.filter(username=username).exclude(id=self.instance.id)
+        if users:
+            raise serializers.ValidationError(f"User with username {username} already exists")
+        return username
 
 
 class LessonShortSerializer(serializers.ModelSerializer):

@@ -36,7 +36,8 @@ class RegisterView(APIView):
             try:
                 send_verification_email(request, user)
             except Exception as e:
-                pass
+                return Response(e, status=status.HTTP_400_BAD_REQUEST)
+
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         return Response({'errors': user_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -68,6 +69,17 @@ class AccountView(APIView):
         user_data.update(user_property_serializer.data)
 
         return Response(user_data)
+
+    def post(self, request):
+        user_serializer = AccountSerializer(data=request.data,
+                                            instance=request.user,
+                                            context={'request': request})
+        if user_serializer.is_valid():
+            user_serializer.update(request.user, user_serializer.validated_data)
+
+            return Response(user_serializer.data)
+
+        return Response({'errors': [user_serializer.errors]})
     
 
 class AccountVerificationView(APIView):
