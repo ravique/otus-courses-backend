@@ -10,7 +10,13 @@ class MetaMixin:
 
 class UserProperty(MetaMixin, models.Model):
     verified = models.BooleanField(default=False, verbose_name='Is verified')
+    avatar = models.ImageField(null=True, blank=True, upload_to='images/user/avatar', verbose_name='User avatar')
+    birthdate = models.DateField(null=True, blank=True, verbose_name='User birthdate')
+
     user = models.OneToOneField(User, blank=False, on_delete=models.CASCADE, related_name='user_property')
+
+    def __str__(self):
+        return self.user.username
 
 
 class Lecturer(MetaMixin, models.Model):
@@ -45,7 +51,6 @@ class Course(MetaMixin, models.Model):
     @property
     def finish(self):
         return self.lessons.all().order_by('date').last().date
-
 
 
 class Lesson(MetaMixin, models.Model):

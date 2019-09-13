@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site
@@ -5,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.models import User
 
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -43,6 +46,7 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
+    authentication_classes = CsrfExemptSessionAuthentication,
     permission_classes = AllowAny,
 
     def post(self, request):
@@ -50,7 +54,8 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             if not user.user_property.verified:
-                return Response({'errors': {'non_field_errors': ['Login failed. Confirm email first']}}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'errors': {'non_field_errors': ['Login failed. Confirm email first']}},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             login(request, user)
             return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
@@ -62,6 +67,8 @@ class AccountView(APIView):
     authentication_classes = CsrfExemptSessionAuthentication,
     permission_classes = IsAuthenticated,
 
+    parser_classes = [JSONParser, MultiPartParser]
+
     def get(self, request):
         user_serializer = AccountSerializer(request.user, context={'request': request})
         user_property_serializer = UserPropertySerializer(request.user.user_property)
@@ -71,16 +78,36 @@ class AccountView(APIView):
         return Response(user_data)
 
     def post(self, request):
-        user_serializer = AccountSerializer(data=request.data,
-                                            instance=request.user,
-                                            context={'request': request})
-        if user_serializer.is_valid():
-            user_serializer.update(request.user, user_serializer.validated_data)
+        user_serializer = AccountSerializer(
+            data=request.data,
+            instance=request.user,
+            context={'request': request}
+        )
+        user_property_serializer = UserPropertySerializer(
+            data=request.data,
+            instance=request.user,
+        )
+        if user_property_serializer.is_valid() and user_serializer.is_valid():
+            user_serializer.update(instance=request.user,
+                                   validated_data=user_serializer.validated_data)
 
-            return Response(user_serializer.data)
+            user_property_serializer.update(instance=request.user.user_property,
+                                            validated_data=user_property_serializer.validated_data)
 
-        return Response({'errors': [user_serializer.errors]})
-    
+            user_serializer = AccountSerializer(request.user, context={'request': request})
+            user_property_serializer = UserPropertySerializer(request.user.user_property)
+            user_data = user_serializer.data
+            user_data.update(user_property_serializer.data)
+
+            return Response(user_data)
+
+        user_property_serializer.is_valid()
+        user_serializer.is_valid()
+        user_serializer_errors = user_serializer.errors
+        user_serializer_errors.update(user_property_serializer.errors)
+
+        return Response({'errors': user_serializer_errors}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AccountVerificationView(APIView):
     permission_classes = AllowAny,

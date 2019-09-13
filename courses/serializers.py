@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = 'id', 'first_name', 'last_name', 'username', 'password', 'email'
+        fields = 'id', 'first_name', 'last_name', 'username', 'password', 'email',
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 
@@ -27,7 +27,13 @@ class UserSerializer(serializers.ModelSerializer):
 class UserPropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProperty
-        fields = 'verified',
+        fields = 'verified', 'avatar', 'birthdate',
+
+    def update(self, instance, validated_data):
+        instance.birthdate = validated_data.get('birthdate', instance.birthdate)
+        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.save()
+        return instance
 
 
 class LoginSerializer(serializers.Serializer):

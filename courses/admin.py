@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from . models import Lecturer, Lesson, Course
+from .models import Lecturer, Lesson, Course, UserProperty
 
 
 @admin.register(Lecturer)
@@ -15,4 +15,9 @@ class LectionAdmin(admin.ModelAdmin):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(UserProperty)
+class UserPropertyAdmin(admin.ModelAdmin):
     pass
