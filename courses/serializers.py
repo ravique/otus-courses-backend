@@ -83,7 +83,7 @@ class AccountSerializer(serializers.ModelSerializer):
     def validate_username(self, username):
         users = User.objects.filter(username=username).exclude(id=self.instance.id)
         if users:
-            raise serializers.ValidationError(f"User with username {username} already exists")
+            raise serializers.ValidationError('User with username {} already exists'.format(username))
         return username
 
 
