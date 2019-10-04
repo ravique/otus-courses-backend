@@ -11,6 +11,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import environ
+
+env = environ.Env(
+    EMAIL_HOST=(str, ''),
+    EMAIL_HOST_PASSWORD=(str, ''),
+    EMAIL_HOST_USER=(str, '')
+)
+environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -169,11 +177,8 @@ MEDIA_URL = '/media/'
 EMAIL_USE_TLS = True
 
 EMAIL_PORT = 25
-EMAIL_HOST = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_HOST_USER = ''
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 
 RQ_SHOW_ADMIN_LINK = True
-
-# Setting not for github :)
-# from .private_settings import EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER

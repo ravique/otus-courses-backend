@@ -17,7 +17,14 @@ cd otus-courses-website
 pip install -r requirements.txt
 ```
 
-then add EMAIL_HOST, EMAIL_HOST_PASSWORD, EMAIL_HOST_USER to `settings.py`
+then add `.env` to the `otus_django_courses` folder.
+
+example:
+```
+EMAIL_HOST=<ip>
+EMAIL_HOST_USER=<host_user>
+EMAIL_HOST_PASSWORD=<password>
+```
 
 To perform migrations:
 ```commandline
@@ -27,9 +34,8 @@ python manage.py migrate
 ## Tests
 
 ```commandline
-coverage run --source='.' --omit=*/venv/*,*/migrations/* manage.py test && coverage report
+pytest
 ```
-
 
 ## API Reference
 
