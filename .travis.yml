@@ -14,7 +14,7 @@ services:
   - redis-server
 
 script:
-  - coverage run --source='.' --omit=*/migrations/* manage.py test
+  - py.test --cov=courses courses/tests
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - codecov
