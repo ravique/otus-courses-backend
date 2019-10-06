@@ -191,6 +191,8 @@ class TestRegisterTestCase:
 
         user = User.objects.first()
 
+        print(response_from_url)
+
         assert 201 == response_from_url.status_code
         assert user.username == request['username']
         assert user.email == request['email']

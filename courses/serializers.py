@@ -9,7 +9,7 @@ from .models import Lecturer, Lesson, Course, UserProperty
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
-    type = serializers.CharField(source='user_property.type')
+    type = serializers.CharField(source='user_property.type', required=False)
 
     class Meta:
         model = User
