@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Avg
 
 
 class MetaMixin:
@@ -15,6 +16,14 @@ class UserProperty(MetaMixin, models.Model):
 
     user = models.OneToOneField(User, blank=False, on_delete=models.CASCADE, related_name='user_property')
 
+    @property
+    def average_score(self):
+        return Score.objects.filter(student=self.user).aggregate(Avg('rate')).get('rate__avg')
+
+    @property
+    def full_name(self):
+        return '{} {}'.format(self.user.first_name, self.user.last_name)
+
     def __str__(self):
         return self.user.username
 
@@ -24,6 +33,8 @@ class Lecturer(MetaMixin, models.Model):
     last_name = models.CharField(max_length=255, blank=True, verbose_name='Last name')
     photo = models.ImageField(upload_to='persons', blank=True, verbose_name='Lecturers photo')
     bio = models.TextField(blank=True, verbose_name='Lecturer bio')
+
+    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.SET_NULL, related_name='lecturer')
 
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)
@@ -66,4 +77,24 @@ class Lesson(MetaMixin, models.Model):
     def __str__(self):
         return self.name
 
-# TODO: Pagination
+
+SCORES = (
+    (0, '0'),
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5'),
+)
+
+
+class Score(MetaMixin, models.Model):
+    rate = models.PositiveIntegerField(choices=SCORES, max_length=1, blank=False, verbose_name='Score')
+    lecturer = models.ForeignKey(Lecturer, blank=False, null=False, on_delete=models.CASCADE, related_name='scores',
+                                 verbose_name='Lecturer')
+    student = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, related_name='scores')
+    lesson = models.ForeignKey(Lesson, blank=False, null=False, on_delete=models.CASCADE, related_name='scores')
+
+    def __str__(self):
+        return str(self.rate)
+

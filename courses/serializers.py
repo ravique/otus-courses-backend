@@ -131,3 +131,18 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = 'links', 'id', 'start', 'finish', 'name', 'description', 'price', 'lessons', 'lecturers',
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    average_score = serializers.FloatField(source='user_property.average_score')
+    avatar = serializers.ImageField(source='user_property.avatar')
+    full_name = serializers.CharField(source='user_property.full_name')
+
+    class Meta:
+        model = User
+        fields = 'avatar', 'full_name', 'average_score', 'email'
+
+
+
+class ScoreSerializer(serializers.Serializer):
+    pass

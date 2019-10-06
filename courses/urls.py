@@ -21,4 +21,6 @@ urlpatterns = [
 
     path('api/course/<int:pk>/register/', views.RegisterOnCourseView.as_view(), name='register-on-course'),
     path('api/course/<int:pk>/unregister/', views.UnRegisterOnCourseView.as_view(), name='un-register-on-course'),
+
+    path('api/table/', views.TableView.as_view(), name='table-view')
 ]

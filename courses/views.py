@@ -17,9 +17,9 @@ from rest_framework import status
 from courses.messages import send_verification_email
 from courses.schedulers import schedule_reminder_messages, clear_reminder_messages
 from .serializers import UserSerializer, LoginSerializer, LecturerSerializer, LessonSerializer, CourseSerializer, \
-    AccountSerializer, UserPropertySerializer
+    AccountSerializer, UserPropertySerializer, StudentSerializer
 
-from .models import Lecturer, Lesson, Course, UserProperty
+from .models import Lecturer, Lesson, Course, UserProperty, Score
 from .tokens import account_activation_token
 
 
@@ -254,3 +254,25 @@ class CourseDetailView(generics.RetrieveAPIView):
     permission_classes = AllowAny,
     queryset = Course.objects.prefetch_related('lessons__lecturer', 'lecturers').all()
     serializer_class = CourseSerializer
+
+
+class TableView(APIView):
+    serializer_class = StudentSerializer
+
+    def get(self, request):
+
+        if not request.user.lecturer:
+            return Response({'errors': 'forbidden'}, status=status.HTTP_403_FORBIDDEN)
+
+        lecturers_students = User.objects.filter(
+            scores__in=Score.objects.filter(lecturer=request.user.lecturer)
+        ).distinct()
+
+        serializer = StudentSerializer(lecturers_students, many=True)
+
+        return Response(serializer.data)
+
+
+
+
+
