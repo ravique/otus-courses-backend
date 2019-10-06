@@ -9,10 +9,11 @@ from .models import Lecturer, Lesson, Course, UserProperty
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
+    type = serializers.CharField(source='user_property.type')
 
     class Meta:
         model = User
-        fields = 'id', 'first_name', 'last_name', 'username', 'password', 'email',
+        fields = 'id', 'first_name', 'last_name', 'username', 'password', 'email', 'type'
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 
@@ -141,8 +142,3 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = 'avatar', 'full_name', 'average_score', 'email'
-
-
-
-class ScoreSerializer(serializers.Serializer):
-    pass

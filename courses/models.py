@@ -24,6 +24,12 @@ class UserProperty(MetaMixin, models.Model):
     def full_name(self):
         return '{} {}'.format(self.user.first_name, self.user.last_name)
 
+    @property
+    def type(self):
+        if self.user.lecturer:
+            return 'lecturer'
+        return 'student'
+
     def __str__(self):
         return self.user.username
 
@@ -89,7 +95,7 @@ SCORES = (
 
 
 class Score(MetaMixin, models.Model):
-    rate = models.PositiveIntegerField(choices=SCORES, max_length=1, blank=False, verbose_name='Score')
+    rate = models.PositiveIntegerField(choices=SCORES, blank=False, verbose_name='Score')
     lecturer = models.ForeignKey(Lecturer, blank=False, null=False, on_delete=models.CASCADE, related_name='scores',
                                  verbose_name='Lecturer')
     student = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, related_name='scores')
