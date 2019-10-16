@@ -18,7 +18,7 @@ env = environ.Env(
     EMAIL_HOST_PASSWORD=(str, ''),
     EMAIL_HOST_USER=(str, ''),
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost']
+    ALLOWED_HOSTS=(list, ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost'])
 )
 environ.Env.read_env()
 
