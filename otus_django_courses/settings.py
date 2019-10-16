@@ -17,7 +17,8 @@ env = environ.Env(
     EMAIL_HOST=(str, ''),
     EMAIL_HOST_PASSWORD=(str, ''),
     EMAIL_HOST_USER=(str, ''),
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost']
 )
 environ.Env.read_env()
 
@@ -33,7 +34,7 @@ SECRET_KEY = '9lslw(yc=$ae7z^h^zt)w3$e80elt0d_^=v*i5ag177t06-h_4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost']
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
