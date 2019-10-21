@@ -1,5 +1,3 @@
-import json
-
 from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404
 from django.contrib.sites.shortcuts import get_current_site

@@ -18,7 +18,10 @@ env = environ.Env(
     EMAIL_HOST_PASSWORD=(str, ''),
     EMAIL_HOST_USER=(str, ''),
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost'])
+    ALLOWED_HOSTS=(list, ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost']),
+    INFLUXDB_HOST=(str, 'localhost'),
+    INFLUXDB_PORT=(int, 8086),
+    INFLUXDB_DB=(str, 'otus')
 )
 environ.Env.read_env()
 
@@ -68,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'otus_django_courses.middleware.ResponseTimeMiddleware'
 ]
 
 ROOT_URLCONF = 'otus_django_courses.urls'
