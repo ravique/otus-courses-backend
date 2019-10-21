@@ -22,7 +22,7 @@ env = environ.Env(
     INFLUXDB_HOST=(str, 'localhost'),
     INFLUXDB_PORT=(int, 8086),
     INFLUXDB_DB=(str, 'otus'),
-    MONITORING=(bool, false)
+    MONITORING=(bool, False)
 )
 environ.Env.read_env()
 
