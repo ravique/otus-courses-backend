@@ -21,7 +21,8 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, ['127.0.0.1', '85.143.173.4', 'oc.space-coding.com', '0.0.0.0', 'localhost']),
     INFLUXDB_HOST=(str, 'localhost'),
     INFLUXDB_PORT=(int, 8086),
-    INFLUXDB_DB=(str, 'otus')
+    INFLUXDB_DB=(str, 'otus'),
+    MONITORING=(bool, false)
 )
 environ.Env.read_env()
 
