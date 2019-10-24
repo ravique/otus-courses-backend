@@ -5,7 +5,7 @@
 Simple website for Django REST API demonstration. Supports: user register, user login, registration on selected course.
 Authorization and login were made by JSON requests for using in rich frontends.
 
-[== DEMO ==](https://oc.space-coding.com/api)
+[== DEMO ==](https://oc.space-coding.com)
 
 **<Attention!>** This module was made by mad-skilled student. Never use it in production. I said "NEVER". :) **</Attention!>**
 **<Disclaimer!>** I know about Django Filter. Bicycle invention in the name of learning! **</Disclaimer!>**
