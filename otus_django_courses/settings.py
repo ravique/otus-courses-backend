@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import environ
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 env = environ.Env(
     EMAIL_HOST=(str, ''),
     EMAIL_HOST_PASSWORD=(str, ''),
@@ -22,12 +25,15 @@ env = environ.Env(
     INFLUXDB_HOST=(str, 'localhost'),
     INFLUXDB_PORT=(int, 8086),
     INFLUXDB_DB=(str, 'otus'),
-    MONITORING=(bool, False)
+    MONITORING=(bool, False),
+    DB_DRIVER=(str, 'sqlite'),
+    DB_NAME=(str, os.path.join(BASE_DIR, 'db.sqlite3')),
+    DB_USER=(str, ''),
+    DB_PASSWORD=(str, ''),
+    DB_IP=(str, ''),
+    DB_PORT=(str, ''),
 )
 environ.Env.read_env()
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -110,10 +116,19 @@ WSGI_APPLICATION = 'otus_django_courses.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+DB_DRIVERS = {
+    'postgres': 'django.db.backends.postgresql_psycopg2',
+    'sqlite': 'django.db.backends.sqlite3'
+}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': DB_DRIVERS[env('DB_DRIVER')],
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_IP'),
+        'PORT': env('DB_PORT'),
     }
 }
 
