@@ -20,10 +20,16 @@ pip install -r requirements.txt
 then add `.env` to the `otus_django_courses` folder.
 
 example:
-```
+```env
 EMAIL_HOST=<ip>
 EMAIL_HOST_USER=<host_user>
 EMAIL_HOST_PASSWORD=<password>
+```
+
+to add Sentry support:
+```env
+SENTRY_KEY=<sentry_key>
+SENTRY_ID=<sentry_id>
 ```
 
 To perform migrations:

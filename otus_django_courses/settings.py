@@ -32,8 +32,20 @@ env = environ.Env(
     DB_PASSWORD=(str, ''),
     DB_IP=(str, ''),
     DB_PORT=(str, ''),
+    SENTRY_KEY=(str, ''),
+    SENTRY_ID=(int, 0)
 )
+
 environ.Env.read_env()
+
+if env('SENTRY_KEY') and env('SENTRY_ID'):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn="https://{}@sentry.io/{}".format(env('SENTRY_KEY'), env('SENTRY_ID')),
+        integrations=[DjangoIntegration()]
+    )
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -66,7 +78,6 @@ INSTALLED_APPS = [
 
     # Apps
     'courses',
-
 ]
 
 MIDDLEWARE = [

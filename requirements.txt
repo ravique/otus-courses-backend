@@ -42,3 +42,4 @@ wcwidth==0.1.7
 zipp==0.6.0
 influxdb==5.2.3
 psycopg2==2.8.4
+sentry-sdk==0.13.0
