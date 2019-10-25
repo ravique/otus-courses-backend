@@ -14,11 +14,12 @@ influx_client = InfluxDBClient(
 class InfluxLogger:
 
     @staticmethod
-    def write(measurement: str, value: int):
+    def write(measurement: str, value: int, path: str):
         return influx_client.write_points([{
             "measurement": measurement,
             "tags": {
                 "host": "localhost",
+                "path": path
             },
             "time": datetime.now(),
             "fields": {

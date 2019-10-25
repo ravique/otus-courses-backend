@@ -17,5 +17,9 @@ class ResponseTimeMiddleware(MiddlewareMixin):
             return response
 
         total = time.time() - request.start_time
-        InfluxLogger.write(measurement='django_response_time', value=total)
+        InfluxLogger.write(
+            measurement='django_response_time',
+            value=total,
+            path=request.path
+        )
         return response
