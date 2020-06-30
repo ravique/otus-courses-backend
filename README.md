@@ -1,4 +1,4 @@
-[![Travis build result](https://travis-ci.com/ravique/otus-courses-website.svg?branch=master)](https://travis-ci.com/ravique/otus-courses-website/) [![codecov](https://codecov.io/gh/ravique/otus-courses-website/branch/master/graph/badge.svg)](https://codecov.io/gh/ravique/otus-courses-website)
+[![Travis build result](https://travis-ci.com/ravique/otus-courses-backend.svg?branch=master)](https://travis-ci.com/ravique/otus-courses-backend/) [![codecov](https://codecov.io/gh/ravique/otus-courses-website/branch/master/graph/badge.svg)](https://codecov.io/gh/ravique/otus-courses-website)
 
 # Otus Django Courses
 
