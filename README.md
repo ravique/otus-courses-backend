@@ -1,8 +1,8 @@
-[![Travis build result](https://travis-ci.com/ravique/otus-courses-website.svg?branch=master)](https://travis-ci.com/ravique/otus-courses-website/) [![codecov](https://codecov.io/gh/ravique/otus-courses-website/branch/master/graph/badge.svg)](https://codecov.io/gh/ravique/otus-courses-website)
+[![Travis build result](https://travis-ci.com/ravique/otus-courses-backend.svg?branch=master)](https://travis-ci.com/ravique/otus-courses-website/) [![codecov](https://codecov.io/gh/ravique/otus-courses-website/branch/master/graph/badge.svg)](https://codecov.io/gh/ravique/otus-courses-website)
 
 # Otus Django Courses
 
-Simple website for Django REST API demonstration. Supports: user register, user login, registration on selected course.
+Simple website for Django REST API demonstration ([frontend](https://github.com/ravique/otus-courses-react)). Supports: user register, user login, registration on selected course.
 Authorization and login were made by JSON requests for using in rich frontends.
 
 [== DEMO ==](https://oc.space-coding.com/api)
