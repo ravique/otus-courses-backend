@@ -8,7 +8,7 @@ codegen==1.0
 coverage==4.5.4
 croniter==0.3.30
 Django>=2.2.2
-django-debug-toolbar==1.11
+django-debug-toolbar==1.11.1
 django-environ==0.4.5
 django-extensions==2.1.7
 django-rq==2.1.0
