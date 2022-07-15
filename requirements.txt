@@ -3,7 +3,7 @@ attrs==19.2.0
 certifi==2019.6.16
 chardet==3.0.4
 Click==7.0
-codecov==2.0.15
+codecov==2.0.16
 codegen==1.0
 coverage==4.5.4
 croniter==0.3.30
